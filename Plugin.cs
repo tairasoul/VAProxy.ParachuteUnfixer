@@ -2,17 +2,19 @@
 using BepInEx.Logging;
 using HarmonyLib;
 using Invector.vCharacterController;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace ParachuteCooldownFixRemover
 {
-    [BepInPlugin("tairasoul.vaproxy.jumpfixreverter", "JumpFixReverter", "1.0.0")]
+    [BepInPlugin("tairasoul.vaproxy.jumpfixreverter", "JumpFixReverter", "1.1.0")]
     public class Plugin : BaseUnityPlugin
     {
 
         public static ManualLogSource log;
         public static vThirdPersonInput tpInput;
         private static bool usingParachute = false;
+        private static float previousY = 0f;
         private void Awake()
         {
             log = Logger;
@@ -30,15 +32,17 @@ namespace ParachuteCooldownFixRemover
                 tpInput.cc.jumpStamina = 0f;
             }
             __result = __instance.canUseParachute && !Object.FindObjectOfType<Inventory>().ancked && !usingParachute && !tpInput.cc.ragdolled && tpInput.cc.groundDistance > __instance.minHeightToOpenParachute;
-            if (!__result)
-            {
-                Inventory inv = Object.FindObjectOfType<Inventory>();
-                inv.anim.SetBool("Skip", true);
-                inv.anim.SetInteger("Ups", 0);
-                inv.canRoll = true;
-            }
             usingParachute = __result;
             return false;
+        }
+        [HarmonyPatch(typeof(vParachuteController), "get_openParachuteConditions")]
+        [HarmonyPostfix]
+        public static void ConditionPostfix(ref bool __result)
+        {
+            if (!__result)
+            {
+                Object.FindObjectOfType<Inventory>().JumpMid();
+            }
         }
     }
 }
