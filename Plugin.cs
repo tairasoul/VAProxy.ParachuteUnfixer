@@ -2,7 +2,6 @@
 using BepInEx.Logging;
 using HarmonyLib;
 using Invector.vCharacterController;
-using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace ParachuteCooldownFixRemover
@@ -14,7 +13,6 @@ namespace ParachuteCooldownFixRemover
         public static ManualLogSource log;
         public static vThirdPersonInput tpInput;
         private static bool usingParachute = false;
-        private static float previousY = 0f;
         private void Awake()
         {
             log = Logger;
